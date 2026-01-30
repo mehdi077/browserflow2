@@ -1,0 +1,1188 @@
+### Liquid Template with HTML Example
+
+Source: https://github.com/shopify/liquid/blob/main/README.md
+
+An example of a Liquid template used for rendering an HTML unordered list of products. It showcases the use of the `for` tag and variable interpolation `{{ }}`. No specific dependencies are mentioned beyond the Liquid engine itself.
+
+```html
+<ul id="products">
+  {% for product in products %}
+    <li>
+      <h2>{{ product.name }}</h2>
+      Only {{ product.price | price }}
+
+      {{ product.description | prettyprint | paragraph }}
+    </li>
+  {% endfor %}
+</ul>
+```
+
+--------------------------------
+
+### Basic Liquid Output Examples
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Shows simple examples of Liquid output statements, where variables or literal values enclosed in double curly braces are replaced with their corresponding content.
+
+```liquid
+Hello {{name}}
+Hello {{user.name}}
+Hello {{ 'tobi' }}
+```
+
+--------------------------------
+
+### Liquid: Limit and Offset in For Loops
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Shows how to use `limit` and `offset` arguments with Liquid's `for` tag to control the number of items returned and the starting point of the iteration. The example iterates over an array, returning two items starting from the third item.
+
+```liquid
+# array = [1,2,3,4,5,6]
+{% for item in array limit:2 offset:2 %}
+  {{ item }}
+{% endfor %}
+# results in 3,4
+```
+
+--------------------------------
+
+### Basic Liquid Template Usage
+
+Source: https://github.com/shopify/liquid/blob/main/README.md
+
+Demonstrates parsing and rendering a simple Liquid template string. It requires the Liquid gem to be installed. The input is a string containing Liquid syntax, and the output is the rendered string.
+
+```ruby
+@template = Liquid::Template.parse("hi {{name}}") # Parses and compiles the template
+@template.render('name' => 'tobi')                # => "hi tobi"
+```
+
+--------------------------------
+
+### Create and Use Custom Text Filters (Ruby)
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+Shows how to define a custom filter in a Ruby module and then apply it within a Liquid template. Filters are methods that transform input values. This example uses the 'textilize' filter.
+
+```ruby
+module TextFilter
+  def textilize(input)
+    RedCloth.new(input).to_html
+  end
+end
+```
+
+```ruby
+@template = Liquid::Template.parse(" {{ '*hi*' | textilize }} ")
+@template.render({}, :filters => [TextFilter])              # => "<strong>hi</strong>"
+```
+
+--------------------------------
+
+### Liquid: Loop through a Range of Integers
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Shows how to loop through a range of numbers in Liquid. Ranges are defined as `(start..end)`, where start and end must be integers. The example iterates from 1 up to the value of `item.quantity`.
+
+```liquid
+# if item.quantity is 4...
+{% for i in (1..item.quantity) %}
+  {{ i }}
+{% endfor %}
+# results in 1,2,3,4
+```
+
+--------------------------------
+
+### Liquid Comment Tag Example
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Demonstrates the usage of the comment tag in Liquid to exclude content from rendering. Any text between `{% comment %}` and `{% endcomment %}` is ignored.
+
+```liquid
+{% comment %}
+We made 1 million dollars {% comment %} in losses {% endcomment %} this year
+{% endcomment %}
+```
+
+--------------------------------
+
+### Liquid: Assign a String Variable
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Shows how to use the `assign` tag in Liquid to create a variable and assign it a string value. The example assigns the string 'freestyle' to the `name` variable.
+
+```liquid
+{% assign name = 'freestyle' %}
+
+{% for t in collections.tags %}{% if t == name %}
+  <p>Freestyle!</p>
+{% endif %}{% endfor %}
+```
+
+--------------------------------
+
+### Liquid Raw Tag Example
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Illustrates the raw tag in Liquid, which temporarily disables tag processing. This is useful for embedding syntax that might conflict with Liquid, such as Mustache or Handlebars.
+
+```liquid
+{% raw %}
+  In Handlebars, {{ this }} will be HTML-escaped, but {{{ that }}} will not.
+{% endraw %}
+```
+
+--------------------------------
+
+### Liquid: Assign a Boolean Variable
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Demonstrates assigning boolean values (`true`/`false`) to a variable in Liquid using the `assign` tag. This example sets a `freestyle` variable to `false` and then updates it to `true` if the tag 'freestyle' is found in `collections.tags`.
+
+```liquid
+{% assign freestyle = false %}
+
+{% for t in collections.tags %}{% if t == 'freestyle' %}
+  {% assign freestyle = true %}
+{% endif %}{% endfor %}
+
+{% if freestyle %}
+  <p>Freestyle!</p>
+{% endif %}
+```
+
+--------------------------------
+
+### Liquid: Break Out of a For Loop
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Demonstrates how to use the `break` tag to exit a Liquid for loop prematurely. `break` terminates the current iteration and stops the loop entirely. This example breaks the loop when a specific `cutoff_page` is encountered.
+
+```liquid
+{% for page in pages %}
+* [page.title](page.url)
+# After we reach the "cutoff" page, stop the list and get on with whatever's after the "for" loop:
+{% if cutoff_page == page.url %}
+    {% break %}
+{% endif %}
+{% endfor %}
+```
+
+--------------------------------
+
+### Liquid: Capture and Assign Rendered Content
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Explains the use of the `capture` tag in Liquid to store rendered content within a variable instead of displaying it directly. The example captures a dynamically generated attribute name and assigns it to the `attribute_name` variable.
+
+```liquid
+{% capture attribute_name %}{{ item.title | handleize }}-{{ i }}-color{% endcapture %}
+
+<label for="{{ attribute_name }}">Color:</label>
+<select name="attributes[{{ attribute_name }}]" id="{{ attribute_name }}">
+  <option value="red">Red</option>
+  <option value="green">Green</option>
+  <option value="blue">Blue</option>
+</select>
+```
+
+--------------------------------
+
+### Liquid: Continue to Next Iteration in a For Loop
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Illustrates the use of the `continue` tag within a Liquid for loop. `continue` immediately ends the current iteration and proceeds to the next one. This example skips pages whose URLs are present in the `hidden_pages` array.
+
+```liquid
+{% for page in pages %}
+# Skip anything in the hidden_pages array, but keep looping over the rest of the values
+{% if hidden_pages contains page.url %}
+    {% continue %}
+{% endif %}
+# If it's not hidden, print it.
+* [page.title](page.url)
+{% endfor %}
+```
+
+--------------------------------
+
+### Run Tests in Shopify Liquid
+
+Source: https://github.com/shopify/liquid/blob/main/CONTRIBUTING.md
+
+Execute the test suite for the Liquid project using the provided Ruby bundle command. This ensures code changes adhere to existing functionality and do not introduce regressions.
+
+```ruby
+bundle exec rake
+```
+
+--------------------------------
+
+### Render a Product Drop in Ruby Controller
+
+Source: https://github.com/shopify/liquid/wiki/Introduction-to-Drops
+
+This Ruby code snippet demonstrates how to read a Liquid template file, parse it, create an instance of `ProductDrop` with a product object, and then render the template. The `ProductDrop` is passed to the template under the key 'product'.
+
+```ruby
+file = File.read(product_view.liquid)
+template = Liquid::Template.parse(file)
+drop = ProductDrop.new(@product)
+template.render('product' => drop) # Please note the hash assignment is a string, not a symbol
+```
+
+--------------------------------
+
+### Parse and Render Liquid Templates (Ruby)
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+Demonstrates the fundamental two-step process of using Liquid: parsing a template string into a Liquid::Template object and then rendering that template with provided data. The parsed template can be reused for efficiency.
+
+```ruby
+@template = Liquid::Template.parse("hi {{name}}")  # Parses and compiles the template
+@template.render( 'name' => 'tobi' )               # Renders the output => "hi tobi"
+```
+
+--------------------------------
+
+### Render a Liquid Tag with Assignments in Ruby (Option 2)
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby snippet demonstrates rendering the 'multiply' tag by passing assigns as a hash argument directly to the `render` method.
+
+```ruby
+@template = Liquid::Template.parse("{% multiply 5 %}")
+@template.render('multiply_by' => 3)    # => 15
+```
+
+--------------------------------
+
+### Liquid Output Markup Syntax
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Demonstrates the basic syntax for output markup in Liquid, which uses double curly braces to enclose expressions that will be replaced by their evaluated values during template rendering.
+
+```liquid
+{{ matched pairs of curly brackets (ie, braces) }}
+```
+
+--------------------------------
+
+### Implement Liquid::Drop for Exporting Proxy Objects
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Demonstrates how to create a custom Liquid::Drop class to export proxy objects to Liquid. This allows for data acquisition when the object is used within Liquid templates, enhancing dynamic content generation. It requires defining a `Liquid::Drop` subclass and implementing methods that will be accessible in the template.
+
+```ruby
+class ProductDrop < Liquid::Drop
+  def top_sales
+     Shop.current.products.find(:all, :order => 'sales', :limit => 10 )
+  end
+end
+
+t = Liquid::Template.parse( ' {% for product in product.top_sales %} {{ product.name }} {% endfor %} '  )
+t.render('product' => ProductDrop.new )
+```
+
+--------------------------------
+
+### Add `{% render %}` tag with `as` support
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Enhances the `{% render %}` tag to support the `as` keyword, allowing for easier assignment of rendered output to a variable. This is useful for capturing and manipulating template fragments.
+
+```liquid
+{% render 'my_snippet', with item as product %}
+```
+
+--------------------------------
+
+### Customizing Liquid with Environments (Ruby)
+
+Source: https://github.com/shopify/liquid/blob/main/README.md
+
+Illustrates how to create and use custom environments in Liquid to register specific tags. This approach isolates custom logic and prevents global conflicts. It requires defining custom tag classes (e.g., `RenderObjTag`, `UnsubscribeFooter`).
+
+```ruby
+user_environment = Liquid::Environment.build do |environment|
+  environment.register_tag("renderobj", RenderObjTag)
+end
+
+Liquid::Template.parse(<<~LIQUID, environment: user_environment)
+  {% renderobj src: "path/to/model.obj" %}
+LIQUID
+```
+
+```ruby
+email_environment = Liquid::Environment.build do |environment|
+  environment.register_tag("unsubscribe_footer", UnsubscribeFooter)
+end
+
+Liquid::Template.parse(<<~LIQUID, environment: email_environment)
+  {% unsubscribe_footer %}
+LIQUID
+```
+
+--------------------------------
+
+### Liquid: Reverse Order in For Loops
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Demonstrates how to iterate over a collection in reverse order using the `reversed` argument with the Liquid `for` tag.
+
+```liquid
+{% for item in collection reversed %} {{item}} {% endfor %}
+```
+
+--------------------------------
+
+### Define a Product Drop with Attributes in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Introduction-to-Drops
+
+This Ruby code defines a `ProductDrop` class that inherits from `Liquid::Drop`. It takes a product object during initialization and exposes its `name`, `description`, and `price` as methods. These methods can be accessed within Liquid templates.
+
+```ruby
+class ProductDrop < Liquid::Drop
+
+  def initialize(product)
+    @product = product
+  end
+
+  def name
+    @product["name"]
+  end
+
+  def description
+    @product["description"]
+  end
+
+  def price
+    @product["price"]
+  end
+
+end
+```
+
+--------------------------------
+
+### Assign Multiple Drops Before Rendering in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Introduction-to-Drops
+
+This Ruby code shows how to prepare multiple drops for rendering within a Liquid template. It reads and parses a template, then assigns instances of `ProductDrop` and `CollectionDrop` to the template's assigns hash before calling render.
+
+```ruby
+file = File.read(product_view.liquid)
+template = Liquid::Template.parse(file)
+template.assigns['product'] = ProductDrop.new(@product) # Please note the hash assignment is a string, not a symbol
+template.assigns['collections'] = CollectionDrop.new(@product.collections)
+template.render
+```
+
+--------------------------------
+
+### Display Product Data in Liquid View
+
+Source: https://github.com/shopify/liquid/wiki/Introduction-to-Drops
+
+This Liquid template code displays the `name`, `description`, and `price` attributes of a `product` drop. It uses dot notation to access the exposed methods of the `ProductDrop` instance passed from the controller.
+
+```liquid
+Viewing product: {{ product.name }} <br/><br /> {{ product.description }} <br /> £{{ product.price }}
+```
+
+--------------------------------
+
+### Render Template with Drops and Registers in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby code illustrates rendering a Liquid template, passing both a custom Drop object ('a_drop') and registers (like 'user') to the render method. Registers are accessible to Drops, Tags, and Filters, unlike assigns.
+
+```ruby
+@template.render({a_drop: ADrop.new(dropped_resource)}, registers: { user: @user })
+```
+
+--------------------------------
+
+### Render a Simple Liquid Tag in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby code demonstrates how to parse a Liquid template containing the custom 'random' tag and render it. The output will be a random number string based on the argument provided to the tag.
+
+```ruby
+@template = Liquid::Template.parse("{% random 5 %}")
+@template.render    # => "3"
+```
+
+--------------------------------
+
+### Add `{% liquid %}` and `{% echo %}` tags
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Introduces new Liquid tags for more flexible control flow and output. The `{% liquid %}` tag allows for multi-line Liquid code, while `{% echo %}` provides a way to output variables or strings.
+
+```liquid
+{% liquid
+  assign message = "Hello, " | append: name
+  echo message
+%}
+```
+
+--------------------------------
+
+### Add Filter Keyword Arguments Support
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+This code highlights the addition of support for keyword arguments in Liquid filters. This enhancement allows for more explicit and readable filter usage by enabling filters to accept named arguments, improving the clarity and maintainability of templates.
+
+--------------------------------
+
+### Ruby Helper as Liquid Filter
+
+Source: https://github.com/shopify/liquid/wiki/Getting-Liquid-to-Work-in-Rails
+
+Demonstrates how to define a Ruby helper method that can be used as a filter within Liquid templates. The helper receives the piped input text as the first argument, followed by any filter parameters. This allows for dynamic content manipulation directly within Liquid.
+
+```ruby
+module ApplicationHelper
+  def truncate(input, length)
+    input[0..length] + '...' 
+  end
+end
+```
+
+```liquid
+{{ 'This is a long section of text' | truncate: 3 }} #=>   Thi...
+```
+
+--------------------------------
+
+### Liquid Tag Markup Syntax
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Illustrates the syntax for tag markup in Liquid, which uses curly braces and percent signs to enclose statements that control template logic but do not directly output text.
+
+```liquid
+{% matched pairs of curly brackets and percent signs %}
+```
+
+--------------------------------
+
+### Define Article Drop for Liquid in Rails
+
+Source: https://github.com/shopify/liquid/wiki/Trying-to-Understand-Drops
+
+This Ruby code defines an `ArticleDrop` class for integrating Liquid with Rails. It includes `Mephisto::Liquid::UrlMethods`, exposes various attributes like `title` and `permalink`, and customizes how `body`, `excerpt`, `comments`, `sections`, and `tags` are rendered in Liquid templates. It also defines helper methods for generating URLs and feeds.
+
+```ruby
+class ArticleDrop < BaseDrop
+  include Mephisto::Liquid::UrlMethods
+
+  timezone_dates :published_at, :updated_at
+  liquid_attributes << :title << :permalink << :comments_count
+
+  def initialize(source, options = {})
+    super source
+    @options        = options
+    @liquid.update \
+      'body'             => @source.body_html,
+      'excerpt'          => (@source.excerpt_html.nil? ||
+                             @source.excerpt_html.empty? ? nil : @source.excerpt_html),
+      'accept_comments'  => @source.accept_comments?,
+      'is_page_home'     => (options[:page] == true)
+  end
+
+  def author
+    @author ||= liquify(@source.user).first
+  end
+
+  def comments
+    @comments ||= liquify(*@source.comments.reject(&:new_record?))
+  end
+
+  def sections
+    @sections ||= @source.sections.inject([]) { |all, s|
+      s.home? ? all : all << s.to_liquid } # your days are numbered, home section!
+    @sections ||= liquify(*@source.sections) { |s| s.home? ? nil : s.to_liquid }
+  end
+
+  def tags
+    @tags ||= liquify(*@source.tags)
+  end
+
+  def blog_sections
+    sections.select { |s| s.source.blog? }
+  end
+
+  def page_sections
+    sections.select { |s| s.source.paged? }
+  end
+
+  def content
+    @content ||= body_for_mode(@options[:mode] || :list)
+  end
+
+  def url
+    @url ||= absolute_url(@site.permalink_for(@source))
+  end
+
+  def comments_feed_url
+    @comments_feed_url ||= url + '/comments.xml'
+  end
+
+  def changes_feed_url
+    @changes_feed_url ||= url + '/changes.xml'
+  end
+
+  protected
+    def body_for_mode(mode)
+      contents = [before_method(:excerpt), before_method(:body)]
+      contents.reverse! if mode == :single
+      contents.detect { |content| !content.blank? }.to_s.strip
+    end
+end
+```
+
+--------------------------------
+
+### Implement Usage Tracking in Liquid (Ruby)
+
+Source: https://github.com/shopify/liquid/blob/main/README.md
+
+Provides a customizable method `Liquid::Usage.increment` for tracking feature or code path usage in production. This method is intended to be overridden or integrated with external tracking systems like statsd-instrument.
+
+```ruby
+# Example of how you might customize Liquid::Usage.increment
+module Liquid
+  class Usage
+    def self.increment(event_name)
+      # Your custom tracking logic here, e.g., send to StatsD
+      puts "Usage event: #{event_name}"
+    end
+  end
+end
+
+# To call it from your templates or application code:
+Liquid::Usage.increment('specific_feature_used')
+```
+
+--------------------------------
+
+### Define a Simple Liquid Tag in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby code defines a custom Liquid tag named 'random' that accepts a maximum value and renders a random number within that range. It inherits from `Liquid::Tag` and implements `initialize` to store the maximum value and `render` to generate the output.
+
+```ruby
+class RandomTag < Liquid::Tag
+  def initialize(tag_name, max, tokens)
+     super
+     @max = max.to_i
+  end
+
+  def render(context)
+    rand(@max).to_s
+  end
+end
+
+Liquid::Template.register_tag('random', RandomTag)
+```
+
+--------------------------------
+
+### Render a Liquid Tag with Assignments in Ruby (Option 1)
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby snippet shows how to render a Liquid template with the 'multiply' tag, setting the 'multiply_by' assignment directly on the template object before rendering.
+
+```ruby
+@template = Liquid::Template.parse("{% multiply 5 %}")
+@template.assigns["multiply_by"] = 10
+@template.render    # => "50"
+```
+
+--------------------------------
+
+### Liquid: For Loop Helper Variables
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Lists and explains the helper variables available within a Liquid `for` loop. These variables provide information about the loop's progress, such as length, current index, remaining items, and whether it's the first or last iteration.
+
+```liquid
+forloop.length      # => length of the entire for loop
+forloop.index       # => index of the current iteration
+forloop.index0      # => index of the current iteration (zero based)
+forloop.rindex      # => how many items are still left?
+forloop.rindex0     # => how many items are still left? (zero based)
+forloop.first       # => is this the first iteration?
+forloop.last        # => is this the last iteration?
+```
+
+--------------------------------
+
+### Render a Custom Liquid Block Tag in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby code demonstrates parsing and rendering a Liquid template containing the custom 'random' block tag. The output includes a randomly generated number inserted into the block's content.
+
+```ruby
+text = " {% random 5 %} you have drawn number ^^^, lucky you! {% endrandom %} "
+@template = Liquid::Template.parse(text)
+@template.render  # will return "you have drawn number 1, lucky you!" in 20% of cases
+```
+
+--------------------------------
+
+### Globally Register Custom Filters (Ruby)
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+Illustrates how to register a custom filter module globally with Liquid, making it available in all templates without explicitly passing it during rendering. This simplifies filter usage.
+
+```ruby
+module TextFilter
+  def textilize(input)
+    RedCloth.new(input).to_html
+  end
+end
+
+Liquid::Template.register_filter(TextFilter)
+```
+
+```ruby
+@template = Liquid::Template.parse(" {{ '*hi*' | textilize }} ")
+@template.render              # => "<b>hi</b>"
+```
+
+--------------------------------
+
+### Add `ParseTreeVisitor` to iterate Liquid AST
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Implements a `ParseTreeVisitor` class to traverse the Abstract Syntax Tree (AST) of Liquid templates. This facilitates static analysis and manipulation of Liquid code.
+
+```ruby
+class MyVisitor < Liquid::ParseTreeVisitor
+  def visit_tag(node)
+    puts "Found tag: #{node.name}"
+    super
+  end
+end
+
+visitor = MyVisitor.new(document)
+visitor.visit
+```
+
+--------------------------------
+
+### Liquid Filter Usage
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Demonstrates how to apply filters in Liquid to modify the output of expressions. Filters are chained using the pipe symbol '|', followed by the filter name and optional parameters.
+
+```liquid
+Hello {{ 'tobi' | upcase }}
+Hello tobi has {{ 'tobi' | size }} letters!
+Hello {{ '*tobi*' | textilize | upcase }}
+Hello {{ 'now' | date: "%Y %h" }}
+```
+
+--------------------------------
+
+### Define a Custom Drop with before_method in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Introduction-to-Drops
+
+This Ruby code defines a custom Liquid Drop named MembersDrop. The `before_method` is used to dynamically find and return a UserDrop based on the method name called (e.g., 'ian' to find user 'ian'). This allows for on-the-fly retrieval of user data.
+
+```ruby
+class MembersDrop < Liquid::Drop
+
+  def before_method(method)
+    user = User.find_by_name(method)
+    user ? UserDrop.new(user) : nil
+  end
+
+end
+```
+
+--------------------------------
+
+### Liquid: Iterate over a Hash
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Demonstrates how to iterate over a hash in Liquid. When iterating a hash, `item[0]` accesses the key and `item[1]` accesses the value.
+
+```liquid
+{% for item in hash %}
+  {{ item[0] }}: {{ item[1] }}
+{% endfor %}
+```
+
+--------------------------------
+
+### Define a Custom Liquid Block Tag in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby code defines a custom Liquid block tag named 'random'. It inherits from `Liquid::Block`, processes markup in `initialize`, and uses `super` in `render` to incorporate the block's content, replacing a placeholder with a generated value.
+
+```ruby
+class RandomTag < Liquid::Block
+  def initialize(tag_name, markup, tokens)
+     super
+     @rand = markup.to_i
+  end
+
+  def render(context)
+    value = rand(@rand)
+    super.sub('^^^', value.to_s)  # calling `super` returns the content of the block
+  end
+end
+
+Liquid::Template.register_tag('random', RandomTag)
+```
+
+--------------------------------
+
+### Accessing Custom Drop Data in Liquid View
+
+Source: https://github.com/shopify/liquid/wiki/Introduction-to-Drops
+
+This Liquid template code demonstrates how to access data from a custom drop. It assumes a `members` drop is available, and uses dot notation (`members.ian`) to retrieve a specific user's data, then accesses the `name` attribute of that user's drop.
+
+```liquid
+{% assign user = members.ian %} {{ user.name }}
+```
+
+--------------------------------
+
+### Use Filter Parameters for Context-Sensitive Type Resolution
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+This snippet illustrates the improved filter parameter handling in Liquid. Filter parameters are now context-sensitive, with types resolved according to the context's rules. Multiple parameters are separated by a Liquid::ArgumentSeparator, defaulting to ','. This allows for more complex and dynamic filter usage.
+
+```liquid
+{{ 'Typo' | link_to: 'http://typo.leetsoft.com', 'Typo - a modern weblog engine' }}
+```
+
+--------------------------------
+
+### Liquid For Loop
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+The `for` loop tag iterates over a collection (like an array) and renders the enclosed template for each item in the collection. The current item is available via the loop variable.
+
+```liquid
+{% for item in array %}
+  {{ item }}
+{% endfor %}
+```
+
+--------------------------------
+
+### Define a Liquid Tag Using Assignments in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby code defines a 'multiply' Liquid tag that uses assigned variables from the context. It multiplies a tag argument by a value provided in the template's assigns or directly during rendering.
+
+```ruby
+class Multiply < Liquid::Tag
+  def initialize(tag_name, factor, tokens)
+     super
+     @factor = factor.to_f
+  end
+
+  def render(context)
+    (@factor * context["multiply_by"].to_f).to_s
+  end
+end
+
+Liquid::Template.register_tag('multiply', Multiply)
+```
+
+--------------------------------
+
+### Liquid Case Statement
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+The `case` statement allows for multiple conditional checks against a single variable. It supports `when` clauses for specific values or sets of values (using `or`) and a final `else` clause.
+
+```liquid
+{% case condition %}
+{% when 1 %}
+hit 1
+{% when 2 or 3 %}
+hit 2 or 3
+{% else %}
+... else ...
+{% endcase %}
+```
+
+```liquid
+{% case template %}
+
+{% when 'label' %}
+     // {{ label.title }}
+{% when 'product' %}
+     // {{ product.vendor | link_to_vendor }} / {{ product.title }}
+{% else %}
+     // {{page_title}}
+{% endcase %}
+```
+
+--------------------------------
+
+### Fix `escape`, `url_encode`, `url_decode` non-string handling
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Resolves issues where the `escape`, `url_encode`, and `url_decode` filters failed when provided with non-string input. The filters now correctly handle various data types.
+
+```liquid
+{{ 123 | url_encode }}
+```
+
+--------------------------------
+
+### Configure Liquid Error Modes (Ruby)
+
+Source: https://github.com/shopify/liquid/blob/main/README.md
+
+Sets the error handling mode for Liquid templates. Options include ':strict' for syntax errors, ':warn' for adding errors to template.errors, and ':lax' (default) for permissive parsing. Can be set globally or per template.
+
+```ruby
+Liquid::Environment.default.error_mode = :strict
+Liquid::Environment.default.error_mode = :strict # Raises a SyntaxError when invalid syntax is used
+Liquid::Environment.default.error_mode = :warn # Adds strict errors to template.errors but continues as normal
+Liquid::Environment.default.error_mode = :lax # The default mode, accepts almost anything.
+```
+
+```ruby
+Liquid::Template.parse(source, error_mode: :strict)
+```
+
+--------------------------------
+
+### Handle Undefined Variables and Filters in Liquid (Ruby)
+
+Source: https://github.com/shopify/liquid/blob/main/README.md
+
+Enables strict checking for undefined variables and filters during Liquid template rendering. Errors are collected in `template.errors`. If `render!` is used, the first exception is raised immediately. Undefined variables render as nil.
+
+```ruby
+template = Liquid::Template.parse("{{x}} {{y}} {{z.a}} {{z.b}}")
+template.render({ 'x' => 1, 'z' => { 'a' => 2 } }, { strict_variables: true })
+#=> '1  2 ' # when a variable is undefined, it's rendered as nil
+template.errors
+#=> [#<Liquid::UndefinedVariable: Liquid error: undefined variable y>, #<Liquid::UndefinedVariable: Liquid error: undefined variable b>]
+```
+
+```ruby
+template = Liquid::Template.parse("{{x | filter1 | upcase}}")
+template.render({ 'x' => 'foo' }, { strict_filters: true })
+#=> '' # when at least one filter in the filter chain is undefined, a whole expression is rendered as nil
+template.errors
+#=> [#<Liquid::UndefinedFilter: Liquid error: undefined filter filter1>]
+```
+
+```ruby
+template = Liquid::Template.parse("{{x}} {{y}}")
+template.render!({ 'x' => 1}, { strict_variables: true })
+#=> Liquid::UndefinedVariable: Liquid error: undefined variable y
+```
+
+--------------------------------
+
+### Handle `join` filter on non String joiners
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Corrects the behavior of the `join` filter to properly handle cases where the joiner is not a string. This ensures consistent output regardless of the joiner's type.
+
+```liquid
+{{ array | join: nil }}
+```
+
+--------------------------------
+
+### Add `at_least` and `at_most` filters
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Introduces two new filters, `at_least` and `at_most`, which allow for clamping numeric values within a specified range. These filters are useful for ensuring values stay within acceptable bounds.
+
+```liquid
+{{ price | at_most: 100 }}
+```
+
+```liquid
+{{ quantity | at_least: 1 }}
+```
+
+--------------------------------
+
+### Liquid: Else Clause for Empty Collections
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Illustrates the use of an `else` clause in a Liquid `for` loop. The `else` block is rendered only when the collection being iterated over is empty.
+
+```liquid
+# items => []
+{% for item in items %}
+   {{ item.title }}
+{% else %}
+   There are no items!
+{% endfor %}
+```
+
+--------------------------------
+
+### Liquid Else If Statement
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+The `elsif` tag provides an alternative condition within an `if` block. If the preceding `if` or `elsif` conditions fail, Liquid evaluates the `elsif` condition. Multiple `elsif` tags can be used.
+
+```liquid
+{% if user.name == 'tobi' %}
+  Hello tobi
+{% elsif user.name == 'bob' %}
+  Hello bob
+{% endif %}
+```
+
+--------------------------------
+
+### Liquid Conditional Checks for Empty or Size
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+Demonstrates checking if an array is empty using the special `empty` keyword or by comparing its `size` property. These are common checks for collection data.
+
+```liquid
+{% if user.payments == empty %}
+   you never paid !
+{% endif %}
+```
+
+```liquid
+{% if user.payments.size > 0  %}
+   you paid !
+{% endif %}
+```
+
+--------------------------------
+
+### Add `where` filter
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Introduces the `where` filter, which allows filtering arrays of objects based on a specified key-value pair. This filter is useful for selecting specific items from a collection.
+
+```liquid
+{{ products | where: 'type', 'shoes' }}
+```
+
+--------------------------------
+
+### Liquid Unless Statement
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+The `unless` tag is the inverse of an `if` statement. The enclosed template section runs only if the condition is false. `unless` statements do not support `elsif` or `else`.
+
+```liquid
+{% unless user.name == 'tobi' %}
+  Hello non-tobi
+{% endunless %}
+```
+
+--------------------------------
+
+### Define User Drop for Liquid in Rails
+
+Source: https://github.com/shopify/liquid/wiki/Trying-to-Understand-Drops
+
+This Ruby code defines a `UserDrop` class that inherits from `BaseDrop`. It explicitly exposes the `login` and `email` attributes to Liquid templates. This is necessary because Liquid has limitations on the types of objects it can directly process, requiring custom drops for Active Record objects.
+
+```ruby
+class UserDrop < BaseDrop
+  liquid_attributes << :login << :email
+end
+```
+
+--------------------------------
+
+### Liquid If Statement
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+The `if` tag encloses a section of template that runs only if the condition is true. It can be combined with `elsif` and `else` for more complex logic. Conditions are Liquid expressions evaluated for truthiness.
+
+```liquid
+{% if user %}
+  Hello {{ user.name }}
+{% endif %}
+```
+
+```liquid
+{% if user != null %}
+  Hello {{ user.name }}
+{% endif %}
+```
+
+```liquid
+{% if user.name == 'tobi' or user.name == 'bob' %}
+  Hello tobi or bob
+{% endif %}
+```
+
+```liquid
+{% if user.name == 'bob' and user.age > 45 %}
+  Hello old bob
+{% endif %}
+```
+
+```liquid
+{% if user.name != 'tobi' %}
+  Hello non-tobi
+{% endif %}
+```
+
+```liquid
+{% if user.age > 18 %}
+   Login here
+{% else %}
+   Sorry, you are too young
+{% endif %}
+```
+
+--------------------------------
+
+### Fix `RANGES_REGEX` catastrophic backtracking
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Addresses a performance issue in the regular expression used for ranges, preventing potential denial-of-service attacks due to catastrophic backtracking. This fix improves the robustness of range parsing.
+
+```ruby
+# Original regex (vulnerable)
+# RANGES_REGEX = /.../
+
+# Fixed regex (example, actual fix may vary)
+RANGES_REGEX = /(?<=\s)(\d+)\.\.(\d+)(?=\s)/
+```
+
+--------------------------------
+
+### Replace recursion with loop for stack overflow prevention
+
+Source: https://github.com/shopify/liquid/blob/main/History.md
+
+Mitigates potential stack overflow errors caused by deep or malicious input by replacing recursive calls with iterative loops. This improves the security and stability of the Liquid parser.
+
+```ruby
+# Example of replacing recursion with a loop
+def process_node(node)
+  stack = [node]
+  while current = stack.pop
+    # Process current node
+    # Add children to stack
+  end
+end
+```
+
+--------------------------------
+
+### Liquid Cycle Tag
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+The `cycle` tag is used to iterate through a list of values, alternating with each call. It can be used without a name for shared cycles or with a named group for independent cycles.
+
+```liquid
+{% cycle 'one', 'two', 'three' %}
+{% cycle 'one', 'two', 'three' %}
+{% cycle 'one', 'two', 'three' %}
+{% cycle 'one', 'two', 'three' %}
+```
+
+```liquid
+{% cycle 'group 1': 'one', 'two', 'three' %}
+{% cycle 'group 1': 'one', 'two', 'three' %}
+{% cycle 'group 2': 'one', 'two', 'three' %}
+{% cycle 'group 2': 'one', 'two', 'three' %}
+```
+
+--------------------------------
+
+### Disable Liquid Class Caching in Ruby
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Programmers
+
+This Ruby code snippet shows how to disable Liquid's class caching in development and test environments to prevent errors related to class redefinition. This is typically placed in environment configuration files.
+
+```ruby
+# in config/environments/development.rb and config/environments/test.rb
+Liquid.cache_classes = false
+```
+
+--------------------------------
+
+### Liquid Contains Operator
+
+Source: https://github.com/shopify/liquid/wiki/Liquid-for-Designers
+
+The `contains` operator checks if a string or array includes a specific value. For strings, if the right-hand side is not a string, it will be stringified. This operator is limited to use within `if`-like tags.
+
+```liquid
+{% if array contains 2 %}
+   array includes 2
+{% endif %}
+```
+
+```liquid
+{% if string contains 'hello' %}
+   string includes 'hello'
+{% endif %}
+```
+
+=== COMPLETE CONTENT === This response contains all available snippets from this library. No additional content exists. Do not make further requests.

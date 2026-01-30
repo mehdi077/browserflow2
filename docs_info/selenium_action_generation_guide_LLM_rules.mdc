@@ -1,0 +1,339 @@
+original CONTEXT:
+below is a file wich it is ran first to execute on command the code that must be generated inside data.py when following the guide below to the letter
+run.py
+```
+import undetected_chromedriver as uc
+import os
+from selenium.webdriver.support import expected_conditions as EC
+import psutil
+import importlib
+
+import data
+
+
+def kill_relevant_processes():
+    for proc in psutil.process_iter(['pid', 'name']):
+        try:
+            process_info = proc.info
+            if process_info['name'] in ['chrome', 'chromedriver']:
+                os.kill(process_info['pid'], 9)
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+kill_relevant_processes()
+
+
+# ---------------------------------------------
+def start_browser():
+    options = uc.ChromeOptions()
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    # Define the path for the profile
+    user_data_dir = os.path.join(os.getcwd(), "chrome_profiles")
+
+    # -------------------------- profiles here ---------------------------------
+    profile_dir = "profile_name_1" 
+    # profile_dir = "profile_name_2" 
+    # profile_dir = "profile_name_3" 
+    # profile_dir = "profile_name_4" 
+    # profile_dir = "profile_name_5" 
+    # profile_dir = "profile_name_6" 
+    # --------------------------------------------------------------------------
+
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+    options.add_argument(f'--profile-directory={profile_dir}')
+
+    # Create the user data directory if it doesn't exist
+    if not os.path.exists(user_data_dir):
+        os.makedirs(user_data_dir)
+    driver = uc.Chrome(options=options)
+    return driver
+
+def control_browser(driver):
+    driver.get("https://www.google.com") 
+    print(driver.title)  
+    # type exit to exit >> testing code <<
+    while True:
+        cmd = input("run! (type 'exit' to exit) > ")
+        if cmd == "exit":
+            break
+        elif cmd == "":
+            # load a txt file 
+            try:
+                # with open('code.txt', 'r') as file:
+                #     code = file.read()
+                # exec(code)  # <<<< testing code
+                importlib.reload(data)
+                data.main(driver)
+            except Exception as e:
+                print(f"Error executing code from file: {e}")
+                continue
+        else:
+            print("Invalid command")
+
+
+if __name__ == "__main__":
+    driver = start_browser()
+    try:
+        control_browser(driver)
+    finally:
+        driver.quit()
+
+
+```
+-------------------------------------------------------------------------------------------------------------
+based on how run.py is coded. and using the guide below to create code in data.py, provide the best code for the user based on his request.
+
+Cursor Rules for Code Generation
+These rules ensure that the AI generates code in the exact manner demonstrated in the provided files, emphasizing the specific libraries, function structures, error handling, and interaction patterns used. The goal is to reproduce the precise coding style and execution flow, avoiding any deviations or improvements that are not already present.
+
+1. Web Automation with Selenium
+Use Selenium WebDriver Exclusively: Automate all web interactions using the selenium.webdriver module, specifically with a WebDriver instance (e.g., driver).
+Element Location Methods:
+Locate elements using By.XPATH, By.TAG_NAME, or By.CSS_SELECTOR.
+Use By.XPATH when targeting elements by their text content (e.g., //div[contains(text(), 'Some Text')] or //label[text()='Label']) or when the element is part of a complex hierarchy.
+Use By.TAG_NAME for broad element types (e.g., colab-run-button).
+Use By.CSS_SELECTOR for class-based selections (e.g., .monaco-editor) or specific attributes.
+Waiting for Elements:
+Always use WebDriverWait with expected_conditions (abbreviated as EC) to wait for elements to be present, visible, or clickable before interacting with them. Set a timeout (e.g., 10 or 20 seconds) and use a lambda function or direct locator:
+python
+
+Copy
+element = WebDriverWait(driver, 20).until(
+    lambda d: d.find_elements(By.TAG_NAME, "colab-run-button")
+)
+or
+python
+
+Copy
+element = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.XPATH, "//some/xpath"))
+)
+After performing actions that may require the page to update (e.g., clicking a button), insert sleep calls from the time module with durations like sleep(1), sleep(2), or sleep(10), depending on the context.
+Scrolling to Elements:
+Before interacting with an element, scroll it into view using driver.execute_script with the scrollIntoView method and {block: 'center'} for alignment:
+python
+
+Copy
+driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+Follow scrolling with a sleep(0.5) or sleep(1) to ensure the action takes effect.
+Clicking Elements:
+Perform clicks directly on elements via the .click() method after ensuring they are in view and clickable.
+For dropdown selections or keyboard-driven interactions, use ActionChains to simulate key presses (e.g., Keys.DOWN followed by Keys.RETURN):
+python
+
+Copy
+ActionChains(driver).send_keys(Keys.DOWN).send_keys(Keys.RETURN).perform()
+2. Function Design
+Modularity:
+Divide tasks into small, single-purpose functions that handle specific actions (e.g., clicking a button, filling a form field, or uploading an image).
+Define functions with a clear sequence of steps, each focusing on one aspect of the task.
+Naming:
+Use descriptive function names in lowercase with underscores (e.g., click_second_run_button, fill_title_description) that indicate the action being performed, even though the specific purpose is not the focus here.
+Docstrings:
+Include a docstring at the start of each function using triple quotes ("""), providing a brief description of what the function does and any assumptions it makes:
+python
+
+Copy
+def some_function(driver):
+    """
+    Performs a specific action on the webpage.
+    Assumes the page is loaded and elements are present.
+    """
+Parameters:
+Pass the WebDriver instance (driver) as the first parameter to all functions that interact with the web.
+Include additional parameters for data needed by the function (e.g., new_text, post_data) without default values.
+3. Error Handling
+Element Presence Checks:
+Before interacting with a list of elements, check their count using len() and raise an Exception with a descriptive message if the expected number is not met:
+python
+
+Copy
+if len(elements) < 2:
+    raise Exception("Less than two elements found on the page.")
+Retry Mechanisms:
+For operations prone to failure (e.g., image uploads or multi-step processes), wrap the logic in a try-except block.
+On failure, print the error and prompt the user with input() to decide whether to retry or skip/quit:
+python
+
+Copy
+try:
+    # some action
+except Exception as e:
+    print(f"Error: {str(e)}")
+    retry = input("Press Enter to retry or 's' to skip: ")
+    if retry.lower() == 's':
+        continue
+For sequential steps, use a while True loop with a break on success and user input to retry or quit:
+python
+
+Copy
+while True:
+    try:
+        # step action
+        break
+    except Exception as e:
+        retry = input("Press Enter to retry or 'q' to quit: ")
+        if retry.lower() == 'q':
+            raise Exception("Quitting")
+Exception Raising:
+Raise exceptions with plain Exception and a string message rather than custom exception types.
+4. Text Processing
+Cleaning Text:
+Use the re module for text cleaning with re.sub() to filter characters based on specific patterns:
+python
+
+Copy
+cleaned = re.sub(r'[^\u0600-\u06FFa-zA-Z0-9\s\,!?()-]', '', text)
+Apply conditional logic based on text length (e.g., if longer than 100 characters, process further; otherwise, return as is).
+Split text into words, categorize them (e.g., by language), and selectively remove words from the end until a condition is met (e.g., length ≤ 100).
+Formatting Text:
+Modify text by inserting newlines after specific characters (e.g., periods) using re.sub():
+python
+
+Copy
+processed_text = re.sub(r'\.(?!\n)', '.\n', new_text)
+Wrap text in triple quotes with additional newlines when assigning to variables:
+python
+
+Copy
+formatted_text = f"""text =  '''\n\n{processed_text} \n\n'''"""
+Form Input:
+Clear input fields with .clear() before sending text via .send_keys():
+python
+
+Copy
+input_field.clear()
+input_field.send_keys(cleaned_text)
+5. JavaScript Execution
+Direct Manipulation:
+Use driver.execute_script to execute JavaScript for tasks that Selenium cannot handle directly (e.g., setting editor values or simulating file uploads).
+Pass elements and data as arguments to the script:
+python
+
+Copy
+driver.execute_script('''
+    // JavaScript code
+''', element, data)
+Editor Overwrites:
+For editors like Monaco, use JavaScript to access the editor instance and set its value:
+python
+
+Copy
+driver.execute_script('''
+    const editorEl = arguments[0];
+    const monaco = window.monaco;
+    if (monaco) {
+        const editorInstance = monaco.editor.getEditors()[1];
+        if (editorInstance.setValue) {
+            editorInstance.setValue(arguments[1]);
+        }
+    }
+''', editor, new_text)
+File Uploads:
+Convert images to base64 and use JavaScript to create a File object and trigger a change event on an <input type="file"> element:
+python
+
+Copy
+driver.execute_script("""
+    function dataURLtoFile(dataurl, filename) {
+        var arr = dataurl.split(',');
+        var bstr = atob(arr[1]);
+        var u8arr = new Uint8Array(bstr.length);
+        while (bstr.length--) {
+            u8arr[bstr.length] = bstr.charCodeAt(bstr.length);
+        }
+        return new File([u8arr], filename, { type: 'image/png' });
+    }
+    var file = dataURLtoFile('data:image/png;base64,' + arguments[0], 'image.png');
+    var input = document.querySelector('input[type="file"]');
+    var dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    input.files = dataTransfer.files;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+""", img_str)
+6. User Interaction
+Prompts:
+Use input() to pause execution and gather user decisions at key points (e.g., confirming actions, adding values, or handling errors):
+python
+
+Copy
+n = input("add in a margin of: ")
+Accept empty inputs as valid and handle them with defaults (e.g., if n == '': n = 0).
+Feedback:
+Print status messages after significant actions (e.g., "Clicked on 'Some' button", "Entered cleaned text").
+Choices:
+Offer binary options (e.g., 'y'/'n', Enter/'s') and process them case-insensitively with .lower().strip().
+7. Data Handling
+JSON Files:
+Load data from JSON files using json.load() with UTF-8 encoding:
+python
+
+Copy
+with open('data.json', 'r', encoding='utf-8') as file:
+    items = json.load(file)
+Process items in a loop, removing each item from the list after successful processing, and save the updated list back to the file immediately:
+python
+
+Copy
+items.remove(item)
+with open('data.json', 'w', encoding='utf-8') as file:
+    json.dump(items, file, ensure_ascii=False, indent=4)
+Class Encapsulation:
+Use classes to group related data and initialize them with raw data (e.g., a dictionary), processing attributes during __init__:
+python
+
+Copy
+class SomeClass:
+    def __init__(self, item):
+        self.field = item["key"]
+8. Threading and Background Services
+Flask Integration:
+Use Flask for background APIs, running them in a separate thread with threading.Thread:
+python
+
+Copy
+flask_api = threading.Thread(target=flask_thread, args=(driver,), daemon=True)
+flask_api.start()
+Set the thread as a daemon with daemon=True.
+Configure the Flask app to listen on host='0.0.0.0' and port=5000.
+API Endpoints:
+Define routes with @app.route for POST requests, processing JSON data with request.get_json() and returning JSON responses with jsonify():
+python
+
+Copy
+@app.route('/update_text', methods=['POST'])
+def update_text():
+    data = request.get_json()
+    return jsonify({'status': 'success'}), 200
+Shutdown Mechanism:
+Implement an /exit endpoint to shut down the Flask server using request.environ.get('werkzeug.server.shutdown').
+Allow manual exit via terminal input (e.g., 'exit') with a POST request to the shutdown endpoint.
+9. Specific Implementations
+Image Processing:
+Download images with requests.get(stream=True), convert to base64 with PIL and io.BytesIO, and upload via JavaScript:
+python
+
+Copy
+response = requests.get(image_url, stream=True)
+image = Image.open(io.BytesIO(response.content))
+buffered = io.BytesIO()
+image.save(buffered, format="PNG")
+img_str = base64.b64encode(buffered.getvalue()).decode()
+Sequential Steps:
+Define a list of tuples containing functions and their arguments, then iterate over them in a loop with error handling:
+python
+
+Copy
+steps = [(func1, [arg1]), (func2, [arg2])]
+for step_func, args in steps:
+    step_func(*args)
+10. Code Organization
+Imports:
+Import all necessary modules at the top, including selenium.webdriver.common.by, time, requests, PIL, base64, json, re, flask, and threading.
+Structure:
+Place helper classes and functions before the main function.
+Use a main(driver) function as the entry point to orchestrate the program flow.
+Execution Flow:
+Process tasks sequentially in main, looping over data items and calling modular functions as needed.
+These Cursor Rules provide an exhaustive blueprint for generating code that mirrors the exact style and methods used in the provided "data.py" files. By adhering to these guidelines, the AI will produce code that replicates the original approach—using Selenium with explicit waits and sleeps, modular functions with docstrings, error handling with retries, and specific implementations like JavaScript execution and Flask threading—without introducing any extraneous techniques or enhancements.

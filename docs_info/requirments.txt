@@ -1,0 +1,6 @@
+
+python3 -m pip install flask_cors
+python3 -m pip install flask
+python3 -m pip install undetected_chromedriver
+python3 -m pip install psutil
+npx @puppeteer/browsers install chrome@stable

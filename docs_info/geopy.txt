@@ -1,0 +1,68 @@
+The Core Logic (The "Engine")
+
+This function is your "black box." You give it an address and a destination, and it gives you back a number.
+
+Python
+import pandas as pd
+import time
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
+
+def calculate_distance_column(data, address_column, destination_address):
+    """
+    data: Your list of dicts (JSON) or Dataframe
+    address_column: The key/name of the column with locations
+    destination_address: The fixed point (e.g., 'Washington, DC')
+    """
+    df = pd.DataFrame(data)
+    geolocator = Nominatim(user_agent="my_travel_app")
+    
+    # Get coordinates for the fixed destination once
+    target = geolocator.geocode(destination_address)
+    target_coords = (target.latitude, target.longitude)
+
+    def get_miles(row_address):
+        try:
+            # Nominatim rules: Don't go faster than 1 request per second
+            time.sleep(1) 
+            loc = geolocator.geocode(row_address)
+            if loc:
+                start_coords = (loc.latitude, loc.longitude)
+                return round(geodesic(start_coords, target_coords).miles, 2)
+        except Exception as e:
+            return None
+        return None
+
+    df['miles_to_target'] = df[address_column].apply(get_miles)
+    return df
+3. Integrating with JSON
+
+Since you mentioned JSON specifically, here is how you would pull a file, run the logic, and save it back.
+
+Python
+import json
+
+# Load your JSON file
+with open('locations.json', 'r') as f:
+    raw_data = json.load(f)
+
+# Run the utility (Assuming your JSON has a 'city_name' field)
+processed_df = calculate_distance_column(raw_data, 'city_name', 'Philadelphia, PA')
+
+# Export back to JSON
+result_json = processed_df.to_json(orient='records', indent=4)
+with open('updated_locations.json', 'w') as f:
+    f.write(result_json)
+4. Important Implementation Details
+
+The Nominatim Usage Policy: This is a free service provided by OpenStreetMap. They require a unique user_agent string (just a name for your app) and a limit of 1 request per second. If you remove the time.sleep(1), they will likely block your IP address.
+
+Coordinate Precision: This uses the WGS-84 ellipsoid model, which is the same one used by GPS. It is much more accurate than a simple "flat earth" calculation (a 
+2
+ +b 
+2
+ =c 
+2
+ ) because it accounts for the curvature of the Earth.
+
+Data Types: If your JSON is nested (e.g., {"info": {"address": "..."}}), you’ll need to flatten it using pd.json_normalize() before passing it to the function.
