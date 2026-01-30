@@ -157,9 +157,12 @@ def extract_frais_livraison(driver):
         raise Exception(f"Failed to select dropdown option: {str(e)}")
 
 
-def main(driver):
+def main(driver, payload=None):
     """
     Main function to perform keyboard actions on the Wilaya dropdown.
     """
     # extract_frais_livraison(driver)
-    save_page_dom_to_file(driver)
+    filename = "page_dom.txt"
+    if isinstance(payload, dict) and payload.get("filename"):
+        filename = payload.get("filename")
+    save_page_dom_to_file(driver, filename=filename)
