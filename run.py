@@ -85,12 +85,18 @@ def _normalize_user_chrome_path(user_path: str):
     return p
 
 
-def _resolve_chrome_executable(base_dir: str) -> str:
+def _resolve_chrome_executable(base_dir: str, prefer_auto: bool = True):
     chrome_dir = os.path.join(base_dir, "chrome")
     saved_path_file = os.path.join(base_dir, ".chrome_executable_path")
 
+    # Priority 1: Let undetected_chromedriver find system Chrome automatically.
+    # Returning None signals "use auto-detection".
+    if prefer_auto:
+        return None
+
     repo_chrome = _discover_chrome_in_repo(chrome_dir)
     if repo_chrome:
+        print(f"[Chrome] Using repo Chrome: {repo_chrome}")
         return repo_chrome
 
     if os.path.exists(saved_path_file):
@@ -99,6 +105,7 @@ def _resolve_chrome_executable(base_dir: str) -> str:
                 saved = f.read().strip()
             saved = _normalize_user_chrome_path(saved)
             if saved and os.path.exists(saved) and os.access(saved, os.X_OK):
+                print(f"[Chrome] Using saved Chrome path: {saved}")
                 return saved
         except OSError:
             pass
@@ -363,11 +370,8 @@ def start_browser():
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    
-    # Set Chrome binary location (must be a string; Selenium will error if it is None)
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    chrome_path = _resolve_chrome_executable(base_dir)
-    options.binary_location = str(chrome_path)
 
     # Define the path for the profile
     user_data_dir = os.path.join(base_dir, "chrome_profiles")
@@ -387,6 +391,20 @@ def start_browser():
     # Create the user data directory if it doesn't exist
     if not os.path.exists(user_data_dir):
         os.makedirs(user_data_dir)
+
+    # Priority 1: Try system Chrome auto-detection first.
+    try:
+        print("[Chrome] Trying system Chrome auto-detection...")
+        driver = uc.Chrome(options=options)
+        print("[Chrome] Successfully using system Chrome")
+        return driver
+    except Exception as e:
+        print(f"[Chrome] Auto-detection failed: {e}")
+        print("[Chrome] Falling back to manual detection...")
+
+    # Priority 2/3/4: repo chrome -> saved path -> prompt
+    chrome_path = _resolve_chrome_executable(base_dir, prefer_auto=False)
+    options.binary_location = str(chrome_path)
     driver = uc.Chrome(options=options, version_main=142)
     return driver
 
