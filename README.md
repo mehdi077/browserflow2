@@ -12,9 +12,9 @@ The core workflow is:
 - `save_dom.py` — saves the current page HTML DOM to `page_dom.txt` (overwrites the file each run).
 
 Example automation modules you can use as references:
-- `extract.py`
-- `extract_fb_marketplace.py`
-- `knowledge.py`
+- `examples/extract.py`
+- `examples/extract_fb_marketplace.py`
+- `examples/knowledge.py`
 
 ## Requirements
 
@@ -35,8 +35,8 @@ python3 -m pip install flask flask_cors requests pillow geopy
 ```
 
 Notes:
-- `extract.py` / `save_dom.py` currently import `flask`, `flask_cors`, `requests`, `PIL` even if you only use parts of them.
-- `extract_fb_marketplace.py` uses `geopy`.
+- `examples/extract.py` / `save_dom.py` currently import `flask`, `flask_cors`, `requests`, `PIL` even if you only use parts of them.
+- `examples/extract_fb_marketplace.py` uses `geopy`.
 
 ### 2) Chrome binary
 
@@ -93,11 +93,11 @@ Create a new Python file (example: `my_new_task.py`) that follows the project pa
 - keep helpers modular (small functions)
 
 You can use these as starting references:
-- `extract.py` (Kimland product extraction)
-- `extract_fb_marketplace.py` (Facebook Marketplace listing extraction)
-- `knowledge.py` (NoteGPT transcript flow)
+- `examples/extract.py` (Kimland product extraction)
+- `examples/extract_fb_marketplace.py` (Facebook Marketplace listing extraction)
+- `examples/knowledge.py` (NoteGPT transcript flow)
 
-Important: some examples contain machine-specific file paths (e.g. `extract.py` writes to `/Users/mehdi/...`). Adjust outputs/paths for your environment.
+Important: some examples contain machine-specific file paths (e.g. `examples/extract.py` writes to `/Users/mehdi/...`). Adjust outputs/paths for your environment.
 
 ### 5) Add your module to the proxy menu
 

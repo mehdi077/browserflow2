@@ -21,6 +21,7 @@ The repository root is the directory that contains:
 - `save_dom.py`
 - `page_dom.txt`
 - `chrome/`
+- `examples/`
 
 All relative paths in this guide assume the current working directory is the repo root.
 
@@ -80,9 +81,11 @@ The daemon keeps running until you call `/shutdown` or terminate the process.
 
 On startup, `run.py` resolves the Chrome executable in this order:
 
-1. **Repo Chrome**: searches under `./chrome/` for a "Chrome for Testing" executable
-2. **Saved path**: reads `./.chrome_executable_path` if present
-3. **Prompt**: if neither exists, it prompts on stdin and saves the chosen path
+1. **System Chrome auto-detection** (preferred): lets `undetected_chromedriver` locate a system-installed Chrome
+   - If auto-detection fails due to a Chrome/ChromeDriver major-version mismatch, `run.py` retries using the major parsed from the error.
+2. **Repo Chrome**: searches under `./chrome/` for a "Chrome for Testing" executable
+3. **Saved path**: reads `./.chrome_executable_path` if present
+4. **Prompt**: if none exist, it prompts on stdin and saves the chosen path
 
 In bot mode, **stdin prompting is not desirable**.
 
@@ -270,7 +273,7 @@ Failure:
 curl -s \
   -X POST http://127.0.0.1:8765/run_module \
   -H 'Content-Type: application/json' \
-  -d '{"module":"extract_fb_marketplace","timeout_seconds":900}'
+  -d '{"module":"examples.extract_fb_marketplace","timeout_seconds":900}'
 ```
 
 ### Example: run your own module with parameters
