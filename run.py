@@ -366,36 +366,41 @@ def run_bot_api(driver, host: str, port: int, base_dir: str):
 
 # ---------------------------------------------
 def start_browser():
-    options = uc.ChromeOptions()
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Define the path for the profile
-    user_data_dir = os.path.join(base_dir, "chrome_profiles")
+    def build_options():
+        # NOTE: undetected_chromedriver does not allow reusing a ChromeOptions
+        # instance across multiple uc.Chrome() calls.
+        options = uc.ChromeOptions()
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
-    # -------------------------- profiles here ---------------------------------
-    profile_dir = "profile_name_1" 
-    # profile_dir = "profile_name_2" 
-    # profile_dir = "profile_name_3" 
-    # profile_dir = "profile_name_4" 
-    # profile_dir = "profile_name_5" 
-    # profile_dir = "profile_name_6" 
-    # --------------------------------------------------------------------------
+        # Define the path for the profile
+        user_data_dir = os.path.join(base_dir, "chrome_profiles")
 
-    options.add_argument(f"--user-data-dir={user_data_dir}")
-    options.add_argument(f'--profile-directory={profile_dir}')
+        # -------------------------- profiles here ---------------------------------
+        profile_dir = "profile_name_1" 
+        # profile_dir = "profile_name_2" 
+        # profile_dir = "profile_name_3" 
+        # profile_dir = "profile_name_4" 
+        # profile_dir = "profile_name_5" 
+        # profile_dir = "profile_name_6" 
+        # --------------------------------------------------------------------------
 
-    # Create the user data directory if it doesn't exist
-    if not os.path.exists(user_data_dir):
-        os.makedirs(user_data_dir)
+        options.add_argument(f"--user-data-dir={user_data_dir}")
+        options.add_argument(f"--profile-directory={profile_dir}")
+
+        # Create the user data directory if it doesn't exist
+        if not os.path.exists(user_data_dir):
+            os.makedirs(user_data_dir)
+
+        return options
 
     # Priority 1: Try system Chrome auto-detection first.
     try:
         print("[Chrome] Trying system Chrome auto-detection...")
-        driver = uc.Chrome(options=options)
+        driver = uc.Chrome(options=build_options())
         print("[Chrome] Successfully using system Chrome")
         return driver
     except Exception as e:
@@ -404,6 +409,7 @@ def start_browser():
 
     # Priority 2/3/4: repo chrome -> saved path -> prompt
     chrome_path = _resolve_chrome_executable(base_dir, prefer_auto=False)
+    options = build_options()
     options.binary_location = str(chrome_path)
     driver = uc.Chrome(options=options, version_main=142)
     return driver
