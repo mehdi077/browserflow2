@@ -10,6 +10,8 @@ import threading
 import traceback
 import inspect
 import time
+import re
+import subprocess
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import sys
 
@@ -83,6 +85,41 @@ def _normalize_user_chrome_path(user_path: str):
                     break
 
     return p
+
+
+def _parse_major_version(text: str):
+    m = re.search(r"(\d+)", text or "")
+    if not m:
+        return None
+    try:
+        return int(m.group(1))
+    except Exception:
+        return None
+
+
+def _get_chrome_major_version(executable_path: str):
+    try:
+        out = subprocess.check_output(
+            [executable_path, "--version"],
+            stderr=subprocess.STDOUT,
+            text=True,
+            timeout=5,
+        ).strip()
+        return _parse_major_version(out)
+    except Exception:
+        return None
+
+
+def _extract_current_browser_major_from_error(err_text: str):
+    # Example:
+    # "Current browser version is 143.0.7499.192"
+    m = re.search(r"Current browser version is\s+(\d+)", err_text or "")
+    if m:
+        try:
+            return int(m.group(1))
+        except Exception:
+            return None
+    return None
 
 
 def _resolve_chrome_executable(base_dir: str, prefer_auto: bool = True):
@@ -404,14 +441,34 @@ def start_browser():
         print("[Chrome] Successfully using system Chrome")
         return driver
     except Exception as e:
-        print(f"[Chrome] Auto-detection failed: {e}")
+        msg = str(e)
+        print(f"[Chrome] Auto-detection failed: {msg}")
+
+        # If the failure is a Chrome/ChromeDriver major-version mismatch, retry
+        # by pinning version_main to the detected browser major.
+        guessed_major = _extract_current_browser_major_from_error(msg)
+        if guessed_major:
+            try:
+                print(f"[Chrome] Retrying auto-detection with version_main={guessed_major}...")
+                driver = uc.Chrome(options=build_options(), version_main=int(guessed_major))
+                print(f"[Chrome] Successfully using system Chrome (version_main={guessed_major})")
+                return driver
+            except Exception as e2:
+                print(f"[Chrome] Auto-detection retry failed: {e2}")
+
         print("[Chrome] Falling back to manual detection...")
 
     # Priority 2/3/4: repo chrome -> saved path -> prompt
     chrome_path = _resolve_chrome_executable(base_dir, prefer_auto=False)
+    chrome_major = _get_chrome_major_version(str(chrome_path))
+    if chrome_major:
+        print(f"[Chrome] Detected Chrome major version from binary: {chrome_major}")
     options = build_options()
     options.binary_location = str(chrome_path)
-    driver = uc.Chrome(options=options, version_main=142)
+    if chrome_major:
+        driver = uc.Chrome(options=options, version_main=int(chrome_major))
+    else:
+        driver = uc.Chrome(options=options)
     return driver
 
 
